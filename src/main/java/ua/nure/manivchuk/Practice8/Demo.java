@@ -1,6 +1,7 @@
 package ua.nure.manivchuk.Practice8;
 
 import ua.nure.manivchuk.Practice8.DAO.DBManager;
+import ua.nure.manivchuk.Practice8.beans.Group;
 import ua.nure.manivchuk.Practice8.beans.User;
 
 import java.util.List;
@@ -25,6 +26,15 @@ public class Demo {
 //        dbManager.insertUser(User.createUser("obama"));
         printList(dbManager.findAllUsers());
 // users ==> [ivanov, petrov, obama]
+
+        System.out.println("===========================");
+
+
+        // Part 2
+//        dbManager.insertGroup(Group.createGroup("teamB"));
+//        dbManager.insertGroup(Group.createGroup("teamC"));
+        printList(dbManager.findAllGroups());
+        // groups ==> [teamA, teamB, teamC]
 
         System.out.println("===========================");
     }

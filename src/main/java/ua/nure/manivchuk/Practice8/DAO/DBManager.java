@@ -1,5 +1,6 @@
 package ua.nure.manivchuk.Practice8.DAO;
 
+import ua.nure.manivchuk.Practice8.beans.Group;
 import ua.nure.manivchuk.Practice8.beans.User;
 import ua.nure.manivchuk.Practice8.utils.Constance;
 
@@ -29,7 +30,11 @@ public abstract class DBManager {
         return instance;
     }
 
-    public abstract void insertUser(User petrov);
+    public abstract void insertUser(User user);
 
     public abstract List<User> findAllUsers();
+
+    public abstract void insertGroup(Group group);
+
+    public abstract List<Group> findAllGroups();
 }

@@ -1,5 +1,6 @@
 package ua.nure.manivchuk.Practice8.DAO;
 
+import ua.nure.manivchuk.Practice8.beans.Group;
 import ua.nure.manivchuk.Practice8.beans.User;
 import ua.nure.manivchuk.Practice8.utils.Constance;
 
@@ -68,6 +69,77 @@ public class DBManagerImpl extends DBManager{
 
         return userList;
     }
+
+    @Override
+    public void insertGroup(Group group) {
+           Connection connection = null;
+           String sql = "INSERT INTO practice8.groups (name) VALUE ('" + group.getName() +"');";
+        try {
+           connection = getConnection();
+           stmt = connection.createStatement();
+           stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            if(stmt != null){
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public List<Group> findAllGroups() {
+        String sql = "SELECT * FROM practice8.groups";
+        List<Group> groupList = new ArrayList<>();
+        Connection connection = null;
+        PreparedStatement pstm = null;
+        ResultSet rs = null;
+        try{
+            connection = getConnection();
+            stmt = connection.createStatement();
+            rs = stmt.executeQuery(sql);
+            while (rs.next()){
+                groupList.add(extractorGroup(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            if(stmt != null){
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return groupList;
+    }
+
+    private Group extractorGroup(ResultSet rs) {
+        Group group = new Group();
+        try {
+            group.setId(rs.getInt("id"));
+            group.setName(rs.getString("name"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return group;
+    }
+
 
     private User extractorUser(ResultSet rs) {
         User user = new User();
