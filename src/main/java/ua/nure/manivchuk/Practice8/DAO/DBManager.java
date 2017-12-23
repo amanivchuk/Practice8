@@ -37,4 +37,20 @@ public abstract class DBManager {
     public abstract void insertGroup(Group group);
 
     public abstract List<Group> findAllGroups();
+
+    public abstract User getUser(int id);
+
+    public abstract User getUser(String login);
+
+    public abstract Group getGroup(int id);
+
+    public abstract Group getGroup(String name);
+
+    public abstract boolean setGroupsForUser(User user, Group... groups);
+
+    public abstract List<String> getUserGroups(User user);
+
+    public abstract void updateGroup(Group group);
+
+    public abstract void deleteGroup(Group team);
 }

@@ -121,12 +121,199 @@ public class DBManagerImpl extends DBManager{
                 }
             }
             try {
-                connection.close();
+                if (connection != null) {
+                    connection.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
         return groupList;
+    }
+
+    public User getUser(int id){
+        Connection connection = null;
+        User user = null;
+        PreparedStatement pstm = null;
+        String sql = "SELECT * FROM practice8.users where id=?;";
+        try{
+            connection = getConnection();
+            pstm = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstm.setInt(1, id);
+            ResultSet rs = pstm.executeQuery();
+            if(rs.next()){
+                user = User.createUser(rs.getString(2));
+                user.setId(rs.getInt(1));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            closeConnection(connection, pstm);
+        }
+        return user;
+    }
+
+    public User getUser(String login){
+        Connection connection = null;
+        PreparedStatement pstm = null;
+        String sql = "SELECT * FROM practice8.users where login=?;";
+        User user = null;
+        try{
+            connection = getConnection();
+            pstm = connection.prepareStatement(sql);
+            pstm.setString(1, login);
+            ResultSet rs = pstm.executeQuery();
+            if(rs.next()){
+                user = User.createUser(rs.getString(2));
+                user.setId(rs.getInt(1));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            closeConnection(connection, pstm);
+        }
+        return user;
+    }
+
+    public Group getGroup(int id){
+        Connection connection = null;
+        PreparedStatement pstm = null;
+        String sql = "SELECT * FROM practice8.groups where id=?;";
+        Group group = null;
+        try{
+            connection = getConnection();
+            pstm = connection.prepareStatement(sql);
+            pstm.setInt(1, id);
+            ResultSet rs = pstm.executeQuery();
+            if(rs.next()){
+                group = Group.createGroup(rs.getString(2));
+                group.setId(rs.getInt(1));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            closeConnection(connection, pstm);
+        }
+        return group;
+    }
+
+    public Group getGroup(String name){
+        Connection connection = null;
+        PreparedStatement pstm = null;
+        String sql = "SELECT * FROM practice8.groups where name=?;";
+        Group group = null;
+        try {
+            connection = getConnection();
+            pstm = connection.prepareStatement(sql);
+            pstm.setString(1, name);
+            ResultSet rs = pstm.executeQuery();
+            if(rs.next()){
+                group = Group.createGroup(rs.getString(2));
+                group.setId(rs.getInt(1));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            closeConnection(connection, pstm);
+        }
+        return group;
+    }
+
+    public boolean setGroupsForUser(User user, Group... groups){
+        Connection connection = null;
+        PreparedStatement pstm = null;
+        boolean res = false;
+        String sql = "INSERT INTO practice8.users_groups VALUE (?,?);";
+        try {
+            connection = getConnection();
+            connection.setAutoCommit(false);
+            for(Group g : groups){
+                pstm = connection.prepareStatement(sql);
+                pstm.setInt(1, user.getId());
+                pstm.setInt(2, g.getId());
+                pstm.executeUpdate();
+            }
+            connection.commit();
+            res = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            closeConnection(connection, pstm);
+        }
+        return res;
+    }
+
+    public List<String> getUserGroups(User user){
+        Connection connection = null;
+        List<String> res = new ArrayList<>();
+        PreparedStatement pstm = null;
+        String sql = "SELECT group_id FROM practice8.users_groups WHERE user_id=?;";
+        try {
+            connection = getConnection();
+            pstm = connection.prepareStatement(sql);
+            pstm.setInt(1, user.getId());
+            ResultSet rs = pstm.executeQuery();
+            while(rs.next()){
+                Group group = getGroup(rs.getInt(1));
+                res.add(group.getName());
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            closeConnection(connection, pstm);
+        }
+        return res;
+    }
+
+    public void deleteGroup(Group team){
+        String sql = "DELETE FROM practice8.groups WHERE id='"+ team.getId() +"';";
+        Connection connection = null;
+        PreparedStatement pstm = null;
+        try{
+            connection = getConnection();
+            pstm = connection.prepareStatement(sql);
+//            pstm.setInt(1, team.getId());
+            pstm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            if(pstm != null){
+                try {
+                    pstm.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void updateGroup(Group group){
+        Connection connection = null;
+        PreparedStatement pstm = null;
+        String sql = "UPDATE practice8.groups SET name=? WHERE id=?;";
+        try{
+            connection = getConnection();
+            pstm = connection.prepareStatement(sql);
+            pstm.setString(1, group.getName());
+            pstm.setInt(2, group.getId());
+            pstm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            closeConnection(connection, pstm);
+        }
     }
 
     private Group extractorGroup(ResultSet rs) {
@@ -151,4 +338,23 @@ public class DBManagerImpl extends DBManager{
         }
         return user;
     }
+
+
+    private void closeConnection(Connection connection, PreparedStatement pstm) {
+        if(pstm != null){
+            try {
+                pstm.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
