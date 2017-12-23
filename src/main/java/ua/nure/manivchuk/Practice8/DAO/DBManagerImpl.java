@@ -12,7 +12,6 @@ import java.util.List;
  * Created by nec on 21.12.17.
  */
 public class DBManagerImpl extends DBManager{
-    private Statement stmt = null;
 
     public static Connection getConnection(){
         Connection conn = null;
@@ -25,7 +24,6 @@ public class DBManagerImpl extends DBManager{
     }
 
     public void insertUser(User user){
-        Connection connection = null;
         try {
             String sql = "INSERT INTO practice8.users (login) VALUES ('" + user.getLogin() + "');";
             connection = getConnection();
@@ -34,45 +32,32 @@ public class DBManagerImpl extends DBManager{
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            if(stmt != null){
-                try {
-                    stmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection();
         }
     }
+
 
     public List<User> findAllUsers() {
         String sql = "SELECT * FROM practice8.users";
         List<User> userList = new ArrayList<User>();
-        Connection connection = null;
-        PreparedStatement pstm = null;
-        ResultSet rs = null;
         try{
             connection = getConnection();
             stmt = connection.createStatement();
-            rs = stmt.executeQuery(sql);
+            ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()){
                 userList.add(extractorUser(rs));
             }
+            rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }finally {
+            closeConnection();
         }
-
-
         return userList;
     }
 
     @Override
     public void insertGroup(Group group) {
-           Connection connection = null;
            String sql = "INSERT INTO practice8.groups (name) VALUE ('" + group.getName() +"');";
         try {
            connection = getConnection();
@@ -81,18 +66,7 @@ public class DBManagerImpl extends DBManager{
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            if(stmt != null){
-                try {
-                    stmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection();
         }
     }
 
@@ -100,41 +74,25 @@ public class DBManagerImpl extends DBManager{
     public List<Group> findAllGroups() {
         String sql = "SELECT * FROM practice8.groups";
         List<Group> groupList = new ArrayList<>();
-        Connection connection = null;
-        PreparedStatement pstm = null;
-        ResultSet rs = null;
+
         try{
             connection = getConnection();
             stmt = connection.createStatement();
-            rs = stmt.executeQuery(sql);
+            ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()){
                 groupList.add(extractorGroup(rs));
             }
+            rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            if(stmt != null){
-                try {
-                    stmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection();
         }
         return groupList;
     }
 
     public User getUser(int id){
-        Connection connection = null;
         User user = null;
-        PreparedStatement pstm = null;
         String sql = "SELECT * FROM practice8.users where id=?;";
         try{
             connection = getConnection();
@@ -149,14 +107,12 @@ public class DBManagerImpl extends DBManager{
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            closeConnection(connection, pstm);
+            closeConnection();
         }
         return user;
     }
 
     public User getUser(String login){
-        Connection connection = null;
-        PreparedStatement pstm = null;
         String sql = "SELECT * FROM practice8.users where login=?;";
         User user = null;
         try{
@@ -172,14 +128,12 @@ public class DBManagerImpl extends DBManager{
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            closeConnection(connection, pstm);
+            closeConnection();
         }
         return user;
     }
 
     public Group getGroup(int id){
-        Connection connection = null;
-        PreparedStatement pstm = null;
         String sql = "SELECT * FROM practice8.groups where id=?;";
         Group group = null;
         try{
@@ -195,14 +149,12 @@ public class DBManagerImpl extends DBManager{
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            closeConnection(connection, pstm);
+            closeConnection();
         }
         return group;
     }
 
     public Group getGroup(String name){
-        Connection connection = null;
-        PreparedStatement pstm = null;
         String sql = "SELECT * FROM practice8.groups where name=?;";
         Group group = null;
         try {
@@ -218,14 +170,12 @@ public class DBManagerImpl extends DBManager{
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            closeConnection(connection, pstm);
+            closeConnection();
         }
         return group;
     }
 
     public boolean setGroupsForUser(User user, Group... groups){
-        Connection connection = null;
-        PreparedStatement pstm = null;
         boolean res = false;
         String sql = "INSERT INTO practice8.users_groups VALUE (?,?);";
         try {
@@ -242,15 +192,13 @@ public class DBManagerImpl extends DBManager{
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            closeConnection(connection, pstm);
+            closeConnection();
         }
         return res;
     }
 
     public List<String> getUserGroups(User user){
-        Connection connection = null;
         List<String> res = new ArrayList<>();
-        PreparedStatement pstm = null;
         String sql = "SELECT group_id FROM practice8.users_groups WHERE user_id=?;";
         try {
             connection = getConnection();
@@ -265,15 +213,13 @@ public class DBManagerImpl extends DBManager{
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            closeConnection(connection, pstm);
+            closeConnection();
         }
         return res;
     }
 
     public void deleteGroup(Group team){
         String sql = "DELETE FROM practice8.groups WHERE id='"+ team.getId() +"';";
-        Connection connection = null;
-        PreparedStatement pstm = null;
         try{
             connection = getConnection();
             pstm = connection.prepareStatement(sql);
@@ -282,26 +228,11 @@ public class DBManagerImpl extends DBManager{
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            if(pstm != null){
-                try {
-                    pstm.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+           closeConnection();
         }
     }
 
     public void updateGroup(Group group){
-        Connection connection = null;
-        PreparedStatement pstm = null;
         String sql = "UPDATE practice8.groups SET name=? WHERE id=?;";
         try{
             connection = getConnection();
@@ -312,7 +243,7 @@ public class DBManagerImpl extends DBManager{
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {
-            closeConnection(connection, pstm);
+            closeConnection();
         }
     }
 
@@ -327,7 +258,6 @@ public class DBManagerImpl extends DBManager{
         return group;
     }
 
-
     private User extractorUser(ResultSet rs) {
         User user = new User();
         try {
@@ -339,11 +269,17 @@ public class DBManagerImpl extends DBManager{
         return user;
     }
 
-
-    private void closeConnection(Connection connection, PreparedStatement pstm) {
+    private void closeConnection() {
         if(pstm != null){
             try {
                 pstm.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if(stmt != null){
+            try {
+                stmt.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }

@@ -4,12 +4,18 @@ import ua.nure.manivchuk.Practice8.beans.Group;
 import ua.nure.manivchuk.Practice8.beans.User;
 import ua.nure.manivchuk.Practice8.utils.Constance;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 
 /**
  * Created by nec on 21.12.17.
  */
 public abstract class DBManager {
+    Statement stmt = null;
+    PreparedStatement pstm = null;
+    Connection connection = null;
     private static DBManager instance;
 
     public static DBManager getInstance() {
